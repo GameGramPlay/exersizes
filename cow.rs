@@ -12,19 +12,30 @@ fn main() {
 
     println!("Fields are Breed, Rating, Volume (cow), Count, Volume (day)");
     let mut counter = 0;
-    let mut total_volume = 0;
+    let mut total_volume: f64 = 0.0;
+    let mut best_counter = 0;
+    let mut best_volume = tbl_volume[counter];
+    let mut best_rating = tbl_rating[counter];
 
-    while counter < tbl_breed.len() {
+    for (counter, breed) in tbl_breed.iter().enumerate() {
         let daily_volume = tbl_volume[counter] * tbl_count[counter] as f64;
-        print!("{}", tbl_breed[counter]);
-        print!(" {}", tbl_rating[counter]);
-        print!(" {}", tbl_volume[counter]);
-        print!(" {}", tbl_count[counter]);
-        print!(" {:.1}", tbl_volume[counter]);
-        println!();
-        counter += 1;
-    };
+        total_volume += daily_volume;
+        println!(
+            "{} {:.1} {:.1} {:.1} {:.1}", 
+            tbl_breed[counter], tbl_rating[counter], tbl_volume[counter], tbl_count[counter], daily_volume
+        );
+        if tbl_rating[counter] <= best_rating && tbl_volume[counter] > best_volume {
+            best_counter = counter;
+            best_volume = tbl_volume[counter];
+            best_rating = tbl_rating[counter];
+        }
 
+    };
+    println!("Total: {} litres", total_volume);
+    println!(
+        "Recommended breed: {} rating: {} volume: {}",
+        tbl_breed[best_counter], best_rating, best_volume
+    );
     // ----------------------------------------------
     // Write your code below this line
 }
