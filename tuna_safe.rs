@@ -1,7 +1,30 @@
 use std::fs::File;
 use std::io::{self, Write};
 
-fn main() -> io::Result<()> {
+#[derive(Debug)]
+enum TunaError {
+    IoError(io::Error),
+    CustomError(String),
+}
+
+impl From<io::Error> for TunaError {
+    fn from(error: io::Error) -> Self {
+        TunaError::IoError(error)
+    }
+}
+
+impl std::fmt::Display for TunaError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            TunaError::IoError(err) => write!(f, "IO error: {}", err),
+            TunaError::CustomError(msg) => write!(f, "Custom error: {}", msg),
+        }
+    }
+}
+
+impl std::error::Error for TunaError {}
+
+fn main() -> Result<(), TunaError> {
     let tbl_tuna = [
         ("Yellowfin", 105, 15, 3),
         ("Albacore", 90, 15, 5),
@@ -14,19 +37,10 @@ fn main() -> io::Result<()> {
     ];
 
     let mut counter = 101;
-    let mut file = match File::create("tuna_data.txt") {
-        Ok(file) => file,
-        Err(e) => {
-            eprintln!("Failed to create file: {}", e);
-            return Err(e);
-        }
-    };
+    let mut file = File::create("tuna_data.txt")?;
 
     for tuna in &tbl_tuna {
-        if let Err(e) = writeln!(file, "{},{},{},{},{}", counter, tuna.0, tuna.1, tuna.2, tuna.3) {
-            eprintln!("Failed to write to file: {}", e);
-            return Err(e);
-        }
+        writeln!(file, "{},{},{},{},{}", counter, tuna.0, tuna.1, tuna.2, tuna.3)?;
         counter += 1;
     }
 
